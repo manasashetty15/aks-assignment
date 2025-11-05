@@ -47,9 +47,15 @@ jobs:
           terraform init
           terraform apply -auto-approve
 
-      - name: Build & Push Docker Image
+      - name: Docker Login to ACR
         run: |
-          az acr login --name ${{ secrets.ACR_NAME }}
+          echo ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }} | \
+          docker login ${{ secrets.ACR_NAME }}.azurecr.io \
+          --username ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }} \
+          --password-stdin
+
+      - name: Build & Push Docker Image
+        run: |          
           docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/sample-app:v1 ./app
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/sample-app:v1
 
