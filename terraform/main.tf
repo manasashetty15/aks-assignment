@@ -7,9 +7,12 @@ resource "azurerm_container_registry" "acr" {
   name                = var.acr_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku                 = "Basic"
-  admin_enabled       = true
+  sku                 = "Premium" # Premium supports zone redundancy
+  admin_enabled       = false     # Disable admin user
+  public_network_access_enabled = false # Disable public access
+  zone_redundancy_enabled = true  # Enable zone redundancy
 }
+
 
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_name
