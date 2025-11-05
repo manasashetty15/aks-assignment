@@ -1,0 +1,36 @@
+name: Deploy to AKS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Terraform Init & Apply
+        run: |
+          cd terraform
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Build & Push Docker Image
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
+          docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/sample-app:v1 ./app
+          docker push ${{ secrets.ACR_NAME }}.azurecr.io/sample-app:v1
+
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group aks-rg --name aks-cluster
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f k8s/
