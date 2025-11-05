@@ -9,7 +9,7 @@ resource "azurerm_container_registry" "acr" {
   location            = azurerm_resource_group.rg.location
   sku                 = "Premium" # Premium supports zone redundancy
   admin_enabled       = false     # Disable admin user
-  public_network_access_enabled = false # Disable public access
+  public_network_access_enabled = true # Disable public access
   zone_redundancy_enabled = true  # Enable zone redundancy
 }
 
